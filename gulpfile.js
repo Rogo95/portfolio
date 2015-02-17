@@ -87,6 +87,16 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('build/js'));
 });
 
+gulp.task('jekyll', function () {
+  gulp.src(['./index.html', './_layouts/*.html', './_posts/*.{markdown,md}'])
+    .pipe(jekyll({
+      source: './',
+      destination: './deploy/',
+      bundleExec: true
+      }))
+    .pipe(gulp.dest('./deploy/'));
+});
+
 
 /**
  * Clean output directories
