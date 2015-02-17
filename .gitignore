@@ -1,2 +1,4 @@
-_site
+site
+build
+*.DS_Store
 .sass-cache
