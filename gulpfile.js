@@ -17,6 +17,11 @@ var messages = {
   jekyllBuild: '<span style="color: grey">Running:</span> $ jekyll build'
 };
 
+var deploy = require("gulp-gh-pages");
+var options = {
+  remoteUrl: "git@github.com:Rogo95/portfolio.git",
+  branch: "gh-pages"};
+
 /**
  * Build vendors dependencies
  */
@@ -111,7 +116,7 @@ gulp.task('clean', del.bind(null, ['build', 'styleguide']));
 /**
  * Serve
  */
-gulp.task('serve', ['styles', 'scripts', 'jekyll-build'], function () {
+gulp.task('serve', ['vendors', 'styles', 'scripts', 'jekyll-build'], function () {
   browserSync({
     server: {
       baseDir: ['site'],
@@ -134,10 +139,10 @@ gulp.task('serve', ['styles', 'scripts', 'jekyll-build'], function () {
 /**
  * Deploy to GH pages
  */
-gulp.task('deploy', function () {
-  gulp.src("site/**/*")
-    .pipe($.ghPages());
-});
+ gulp.task('deploy', function () {
+   gulp.src("site/**/*.*")
+   .pipe(deploy(options));
+ });
 
 /**
  * Task to build assets on production server
