@@ -2,14 +2,14 @@ source:      .
 destination: ./site
 layouts:     ./templates
 
-include:      []
+include:      ["build"]
 exclude:      ["templates", "assets"]
 
 # Site settings
-title: 
-email: 
-description: 
-baseurl: "/Personnal/romain-portfolio/site/"
+title:
+email:
+description:
+baseurl: ""
 url: "http://yourdomain.com"
 permalink: ":title"
 

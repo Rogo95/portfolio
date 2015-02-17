@@ -11,6 +11,12 @@ var gulp = require('gulp'),
     argv = require('yargs').argv,
     del = require('del');
 
+var cp = require('child_process');
+
+var messages = {
+  jekyllBuild: '<span style="color: grey">Running:</span> $ jekyll build'
+};
+
 /**
  * Build vendors dependencies
  */
@@ -87,16 +93,15 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('build/js'));
 });
 
-gulp.task('jekyll', function () {
-  gulp.src(['./index.html', './_layouts/*.html', './_posts/*.{markdown,md}'])
-    .pipe(jekyll({
-      source: './',
-      destination: './deploy/',
-      bundleExec: true
-      }))
-    .pipe(gulp.dest('./deploy/'));
+gulp.task('jekyll-build', function (done) {
+  browserSync.notify(messages.jekyllBuild);
+  return cp.spawn('jekyll', ['build'], {stdio: 'inherit'})
+  .on('close', done);
 });
 
+gulp.task('jekyll-rebuild', ['jekyll-build'], function () {
+  browserSync.reload();
+});
 
 /**
  * Clean output directories
@@ -106,12 +111,11 @@ gulp.task('clean', del.bind(null, ['build', 'styleguide']));
 /**
  * Serve
  */
-gulp.task('serve', ['styles', 'scripts'], function () {
+gulp.task('serve', ['styles', 'scripts', 'jekyll-build'], function () {
   browserSync({
     server: {
       baseDir: ['site'],
-    },
-    open: false
+    }
   });
   gulp.watch(['assets/sass/**/*.scss'], function() {
     runSequence('vendors', 'styles', reload);
@@ -121,6 +125,9 @@ gulp.task('serve', ['styles', 'scripts'], function () {
   });
   gulp.watch(['assets/js/**/*.js'], function() {
     runSequence('vendors', 'scripts', reload);
+  });
+  gulp.watch(['_posts/**/*.md', 'templates/**/*.html', '_includes/**/*.html', 'index.html'], { maxListeners: 99 }, function() {
+    runSequence('jekyll-build', reload);
   });
 });
 
@@ -137,13 +144,12 @@ gulp.task('deploy', function () {
  */
 gulp.task('build', ['clean'], function() {
     argv.production = true;
-    runSequence('vendors', 'styles', 'img', 'scripts');
+    runSequence('vendors', 'styles', 'img', 'scripts', 'jekyll-build');
 });
 
 /**
  * Default task
  */
 gulp.task('default', ['clean'], function(cb) {
-  runSequence('vendors', 'styles', 'img', 'scripts', cb);
+  runSequence('vendors', 'styles', 'img', 'scripts', 'jekyll-build', cb);
 });
-
